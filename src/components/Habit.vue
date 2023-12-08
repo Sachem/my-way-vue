@@ -2,30 +2,90 @@
 
     import { ref } from 'vue'
     import { 
-        IonAlert, IonButton, IonButtons, IonCheckbox, IonCol, IonContent, IonIcon, IonItem, IonLabel, IonPopover, IonRow, IonSelect, IonSelectOption 
+        IonAlert, IonButton, IonButtons, IonCheckbox, IonCol, IonContent, 
+        IonIcon, IonItem, IonLabel, IonPopover, IonRow, IonSelect, IonSelectOption 
     } from '@ionic/vue';
-
+    import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
-
+    
     const props = defineProps(['habit'])
+    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress'])
+    const popoverOpened = ref(false);
 
     console.log(props.habit)
 
     function onMarkCompleted(){
         console.log('onMarkCompleted');
+
+        emit('onMarkCompleted', props.habit, 0)
     }
+
     function onCalendarOpen(){
         console.log('onCalendarOpen');
     }
+
     function onEditStart(){
         console.log('onEditStart');
     }
-    function presentAlert(){
-        console.log('presentAlert');
+
+    function onChangeProgress(dayIndex, progress){
+        console.log('onChangeProgress: ' + progress);
     }
+
+
+    const presentDeleteAlert = async () => {
+        const alert = await alertController.create(deleteHabitAlertParams);
+
+        await alert.present();
+    };
+
+    const deleteHabitAlertParams = {
+        header: 'Are you sure you want to delete this habit?',
+        buttons: [
+            {
+                text: 'No',
+                role: 'cancel',
+            },
+            {
+                text: 'Yes',
+                role: 'confirm',
+                handler: () => {
+                    console.log('deleting habit...' + props.habit.id);
+                    //onDelete(habit.id);
+                },
+            },
+        ]
+    };
+
     function setPopoverOpened(){
         console.log('setPopoverOpened');
+        popoverOpened.value = true;
     }
+
+    const updateProgressAlertButtons=[
+        {
+            text: 'Cancel',
+            role: 'cancel'
+        },
+        {
+            text: 'OK',
+            role: 'confirm',
+            handler: (alertData) => {
+                onChangeProgress(0, alertData.progress);
+            }
+        }
+    ];
+
+    const updateProgressAlertInputs=[
+        {
+            name: 'progress',
+            type: 'number',
+            placeholder: 'Progress',
+            min: 0,
+            value: props.habit.progress[0].progress
+        }
+    ];
+
 </script>
 
 <template>
@@ -36,8 +96,19 @@
         @click="onMarkCompleted"
     ></ion-checkbox>
     <ion-label>
-        {{props.habit.name}}
-        <!-- TODO: add progress and alert to change progress (for measurable)-->
+        {{ habit.name }} 
+        <template v-if="habit.measurable == 1"> 
+            <br />
+            <ion-label :id="'update-progress-habit-'+habit.id" class="smallGrey">
+                Progress: <b>{{ habit.progress[0].progress }} / {{ habit.goal }}</b> {{ habit.unit }}
+            </ion-label>
+            <ion-alert
+                :trigger="'update-progress-habit-'+habit.id"
+                header="What is your progress today?"
+                :buttons="updateProgressAlertButtons"
+                :inputs="updateProgressAlertInputs"
+            ></ion-alert>
+        </template>
     </ion-label>
     <ion-buttons slot="end">
         <ion-button 
@@ -57,7 +128,7 @@
             <ion-icon :icon="createOutline"></ion-icon>
         </ion-button>
         <ion-button 
-            @click="presentAlert"
+            @click="presentDeleteAlert"
             fill="clear"
             size='large'
             className='ion-hide-sm-down'
@@ -65,13 +136,25 @@
             <ion-icon :icon="trashOutline"></ion-icon>
         </ion-button>
         <ion-button 
-            id={habit.id}
+            :id="habit.id"
             @click="setPopoverOpened"
             className='ion-hide-sm-up'
         >
             <ion-icon :icon="ellipsisVerticalCircleOutline"></ion-icon>
         </ion-button>
-        <!-- TODO: add popover-->
+        <ion-popover :trigger="'open-menu-habit-' + habit.id" :isOpen="popoverOpened">
+            <ion-content class="ion-padding">
+                <ion-item @click="onCalendarOpen">
+                    <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar
+                </ion-item>
+                <ion-item @click="onEditStart">
+                    <ion-icon :icon="createOutline"></ion-icon>&nbsp;Edit
+                </ion-item> 
+                <ion-item @click="presentDeleteAlert">
+                    <ion-icon :icon="trashOutline"></ion-icon>&nbsp;Delete
+                </ion-item>
+            </ion-content>
+        </ion-popover>
     </ion-buttons>
 </ion-item>
 </template>

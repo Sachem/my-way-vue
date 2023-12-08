@@ -3,6 +3,7 @@
     import { ref } from 'vue'
     import { IonContent, IonList, IonItem } from '@ionic/vue';
     import Habit from '../components/Habit.vue'
+import { colorWandOutline } from 'ionicons/icons';
 
 
     const habits = ref([
@@ -39,8 +40,43 @@
                     "date": "2023-11-7"
                 },
             ]
+        },
+        {
+            "id": 3,
+            "name": "Pray",
+            "category_id": 1,
+            "priority": null,
+            "measurable": 0,
+            "goal": null,
+            "unit_id": null,
+            "unit": null,
+            "progress": [
+                {
+                    "progress": null,
+                    "done": 0,
+                    "date": "2023-11-7"
+                },
+            ]
         }
     ]);
+
+    function markCompleted(habit, dateIndex){
+        console.log("marking completed ID: " + habit.id)
+
+        let isChecked = habit.progress[dateIndex].done;
+        isChecked = ! isChecked;
+
+        habits.value.map((h) => {
+            if (h.id === habit.id) {
+                habit.progress[dateIndex].done = isChecked;
+                return habit;
+            } 
+
+            return h;
+        });
+
+        console.log(habits)
+    }
 </script>
 
 <template>
@@ -55,6 +91,7 @@
             v-for="habit in habits"
             :habit="habit"
             :key="habit.id"
+            @on-mark-completed="markCompleted" 
             />
         </ion-list>
     </ion-content>
