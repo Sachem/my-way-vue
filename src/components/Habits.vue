@@ -1,10 +1,12 @@
 <script setup lang="ts">
 
     import { ref } from 'vue'
-    import { IonContent, IonList, IonItem } from '@ionic/vue';
+    import { IonContent, IonList, IonItem, IonButton } from '@ionic/vue';
     import Habit from '../components/Habit.vue'
-import { colorWandOutline } from 'ionicons/icons';
+    import AddEditHabit from '../components/AddEditHabit.vue'
+    import { useUIStore } from '@/stores/ui'
 
+    const UI = useUIStore()
 
     const habits = ref([
         {
@@ -60,6 +62,17 @@ import { colorWandOutline } from 'ionicons/icons';
         }
     ]);
 
+    const habitCategories = ref([
+        {
+            id: 1,
+            name: 'body'
+        },
+        {
+            id: 2,
+            name: 'spirit'
+        }
+    ])
+
     function markCompleted(habit, dateIndex){
         console.log("marking completed ID: " + habit.id)
 
@@ -77,6 +90,34 @@ import { colorWandOutline } from 'ionicons/icons';
 
         console.log(habits)
     }
+
+    function changeProgress(habit, dateIndex, progress){
+        console.log("change progress to "+progress+" for ID: " + habit.id)
+
+        habits.value.map((h) => {
+            if (h.id === habit.id) {
+                habit.progress[dateIndex].progress = progress;
+                return habit;
+            } 
+
+            return h;
+        });
+
+        console.log(habits)
+    }
+
+    function deleteHabit(habitId){
+        console.log("delete ID: " + habitId)
+
+        habits.value = habits.value.filter((h) => h.id !== habitId);
+
+        console.log(habits)
+    }
+
+    function addHabit(){
+        console.log("adding new habit...")
+        UI.setAddEditHabitModalOpened(true);
+    }
 </script>
 
 <template>
@@ -92,9 +133,28 @@ import { colorWandOutline } from 'ionicons/icons';
             :habit="habit"
             :key="habit.id"
             @on-mark-completed="markCompleted" 
+            @on-change-progress="changeProgress" 
+            @on-delete="deleteHabit" 
             />
         </ion-list>
     </ion-content>
+
+    <ion-button 
+        shape="round" 
+        class="addHabit ion-hide-md-down" 
+        @click="addHabit"
+    >+</ion-button>
+
+    <ion-button 
+        shape="round" 
+        class="addHabitSmall ion-hide-md-up" 
+        @click="addHabit"
+    >+</ion-button>
+
+    <AddEditHabit 
+        :habitCategories="habitCategories" 
+    />
+    
 </template>
 
 <style scoped>

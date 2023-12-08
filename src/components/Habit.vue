@@ -9,7 +9,7 @@
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     
     const props = defineProps(['habit'])
-    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress'])
+    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete'])
     const popoverOpened = ref(false);
 
     console.log(props.habit)
@@ -28,8 +28,11 @@
         console.log('onEditStart');
     }
 
-    function onChangeProgress(dayIndex, progress){
+    function onChangeProgress(dateIndex, progress){
         console.log('onChangeProgress: ' + progress);
+
+        emit('onChangeProgress', props.habit, dateIndex, progress)
+
     }
 
 
@@ -51,7 +54,7 @@
                 role: 'confirm',
                 handler: () => {
                     console.log('deleting habit...' + props.habit.id);
-                    //onDelete(habit.id);
+                    emit('onDelete', props.habit.id);
                 },
             },
         ]
