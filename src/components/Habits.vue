@@ -5,73 +5,44 @@
     import Habit from '../components/Habit.vue'
     import AddEditHabit from '../components/AddEditHabit.vue'
     import { useUIStore } from '@/stores/ui'
+    import { useAuthStore } from '@/stores/auth'
+
+    import { inject } from 'vue'
+    const axios: any = inject('axios') 
 
     const UI = useUIStore()
+    const Auth = useAuthStore()
+    
 
-    const habits = ref([
-        {
-            "id": 1,
-            "name": "Jog",
-            "category_id": 5,
-            "priority": null,
-            "measurable": 1,
-            "goal": 3,
-            "unit_id": 8,
-            "unit": "kilometers",
-            "progress": [
-                {
-                    "progress": 0,
-                    "done": 0,
-                    "date": "2023-11-7"
-                },
-            ]
-        },
-        {
-            "id": 2,
-            "name": "Meditate every day",
-            "category_id": 1,
-            "priority": null,
-            "measurable": 1,
-            "goal": 2,
-            "unit_id": 5,
-            "unit": "minutes",
-            "progress": [
-                {
-                    "progress": 0,
-                    "done": 0,
-                    "date": "2023-11-7"
-                },
-            ]
-        },
-        {
-            "id": 3,
-            "name": "Pray",
-            "category_id": 1,
-            "priority": null,
-            "measurable": 0,
-            "goal": null,
-            "unit_id": null,
-            "unit": null,
-            "progress": [
-                {
-                    "progress": null,
-                    "done": 0,
-                    "date": "2023-11-7"
-                },
-            ]
-        }
-    ]);
+    const config = {};
 
-    const habitCategories = ref([
-        {
-            id: 1,
-            name: 'body'
-        },
-        {
-            id: 2,
-            name: 'spirit'
-        }
-    ])
+    const habits = ref([]);
+    const habitCategories = ref([]);
+    const habitUnits = ref([]);
+
+    axios.get('/sanctum/csrf-cookie')
+            .then(response => {
+              
+        axios.get('/api/habits', config)
+            .then(response => {
+            console.log('habits from API: ', response.data.data);
+            habits.value = response.data.data;
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+    });
+
+    axios.get('/api/habit/meta', config)
+        .then(response => {
+            habitCategories.value = response.data.categories;
+            habitUnits.value = response.data.units;
+        })
+        .catch(error => {
+            console.error(error);
+        });
+
 
     function markCompleted(habit, dateIndex){
         console.log("marking completed ID: " + habit.id)

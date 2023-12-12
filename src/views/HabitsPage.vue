@@ -4,8 +4,8 @@
         <ion-toolbar>
           <ion-title><b className="themeBlue">My Way</b> - {{ appView == 'home' ? 'Today' : 'Recent days'}}</ion-title>
           <ion-buttons slot="end">
-            <ion-button @click="clicked">              
-              <ion-icon className="themeBlue" icon={logOutOutline}></ion-icon>
+            <ion-button @click="logout">              
+              <ion-icon className="themeBlue" :icon="logOutOutline"></ion-icon>
             </ion-button>
           </ion-buttons>
         </ion-toolbar>
@@ -30,18 +30,24 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { IonRouterOutlet } from '@ionic/vue';
 import { IonButton, IonButtons, IonContent, IonFooter, IonHeader, IonIcon, IonPage, IonSegment, IonSegmentButton, IonTitle, IonToolbar } from '@ionic/vue';
 import { addCircleOutline, ellipsisVerticalCircleOutline, home, listOutline, logOutOutline } from 'ionicons/icons';
 import { ellipse, square, triangle } from 'ionicons/icons';
 
 import Habits from '../components/Habits.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from "vue-router";
 
-function clicked(){
-  console.log('clicked')
-}
+const router = useRouter()
 
 const appView = ref('home');
+
+const logout = () => {
+      const authStore = useAuthStore();
+      authStore.setLoggedIn(false)
+      authStore.setAccessToken('')
+      router.push('/auth')
+  };
 </script>
 
 <style scoped>
