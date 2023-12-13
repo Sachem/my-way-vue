@@ -36,8 +36,8 @@ console.log('apiEndpoint', apiEndpoint);
 axios.defaults.baseURL = apiEndpoint;
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 // axios.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-axios.defaults.withCredentials = true;
-axios.defaults.withXSRFToken = true;
+//axios.defaults.withCredentials = true;
+//axios.defaults.withXSRFToken = true;
 
 axios.interceptors.request.use(request => {
   // console.log(request);

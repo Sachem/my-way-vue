@@ -14,7 +14,8 @@
         UI.setAddEditHabitModalOpened(false);
     }
 
-    function handleSubmit(){
+    function handleSubmit(e){
+        e.preventDefault();
         console.log('form submitted...');
     }
 
@@ -40,7 +41,7 @@
         </IonHeader>
         <IonContent class="ion-padding">
             <IonList lines="none">
-                    <form :submit="handleSubmit">
+                    <form v-on:submit="handleSubmit">
                     <input 
                         value="0"
                         type="hidden"

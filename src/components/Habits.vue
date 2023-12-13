@@ -11,22 +11,32 @@
     const axios: any = inject('axios') 
 
     const UI = useUIStore()
-    const Auth = useAuthStore()
     
+    interface ProgressDate {
+        date: string;
+        dayOfWeek: string;
+        dayInMonth: number;
+    }
+
+    const loading = ref(true)
 
     const config = {};
 
     const habits = ref([]);
     const habitCategories = ref([]);
     const habitUnits = ref([]);
-
+    const dates = ref<ProgressDate[]>([]);
+ 
     axios.get('/sanctum/csrf-cookie')
             .then(response => {
               
         axios.get('/api/habits', config)
             .then(response => {
             console.log('habits from API: ', response.data.data);
+            console.log('dates from API: ', response.data.meta.dates);
             habits.value = response.data.data;
+            dates.value = response.data.meta.dates;
+            loading.value = false;
             })
             .catch(error => {
                 console.error(error);
@@ -50,31 +60,65 @@
         let isChecked = habit.progress[dateIndex].done;
         isChecked = ! isChecked;
 
-        habits.value.map((h) => {
-            if (h.id === habit.id) {
-                habit.progress[dateIndex].done = isChecked;
-                return habit;
-            } 
+        const data = {
+            'date': dates.value[dateIndex].date,
+            'done': isChecked
+        };
 
-            return h;
+        console.log("marking habit ID: " + habit.id+ " as "+(isChecked ? '' : 'not ')+"completed at: " + data.date + "(dateIndex: "+dateIndex+")");
+
+
+        axios.post('/api/habit/mark-completed/' + habit.id, data, config).then(response => {
+            console.log("request successful, response: "+response.data);
+
+            //let respHabit = response.data;
+            habits.value.map((h) => {
+                if (h.id === habit.id) {
+                    habit.progress[dateIndex].done = isChecked;
+                    return habit;
+                } 
+
+                return h;
+            });
+        //console.log('habits', habits.value)
+
         });
 
-        console.log(habits)
     }
 
     function changeProgress(habit, dateIndex, progress){
-        console.log("change progress to "+progress+" for ID: " + habit.id)
+        console.log("changing progress of habit ID: " + habit.id+ " to "+progress +" at dateIndex: "+dateIndex);
 
-        habits.value.map((h) => {
-            if (h.id === habit.id) {
-                habit.progress[dateIndex].progress = progress;
-                return habit;
-            } 
+        const data = {
+            'date': dates.value[dateIndex].date,
+            'progress': progress
+        };
 
-            return h;
+        console.log("changing progress of habit ID: " + habit.id+ " to "+progress +" at: " + data.date + "(dateIndex: "+dateIndex+")");
+
+        axios.post('/api/habit/change-progress/' + habit.id, data, config).then(response => {
+            console.log("request successful, response: "+response.data);
+
+            let respHabit = response.data;
+            habits.value.map((h) => {
+                if (h.id === habit.id) {
+                    console.log(habit);
+
+                    habit.progress[dateIndex].progress = progress;
+                    if (habit.progress[dateIndex].progress >= habit.goal){
+                        habit.progress[dateIndex].done = true;
+                    } else {
+                        habit.progress[dateIndex].done = false;
+                    }
+                    return habit;
+                } 
+
+                return h;
+            });
+          //  console.log('habits', habits.value)
+
         });
 
-        console.log(habits)
     }
 
     function deleteHabit(habitId){
@@ -93,7 +137,12 @@
 
 <template>
     <ion-content color="light">
-        <ion-list v-if="habits.length == 0">
+        <ion-list v-if="loading">
+            <ion-item>
+                <p>Loading...</p>
+            </ion-item>
+        </ion-list>
+        <ion-list v-else-if="habits.length == 0">
             <ion-item>
                 <p>No habits yet, add one now.</p>
             </ion-item>
