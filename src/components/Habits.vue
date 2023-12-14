@@ -23,9 +23,7 @@
     const config = {};
 
     const habits = ref([]);
-    const habitCategories = ref([]);
-    const habitUnits = ref([]);
-    const dates = ref<ProgressDate[]>([]);
+    const dates = ref<ProgressDate[]>([]); // TODO: move to UI store
  
     axios.get('/sanctum/csrf-cookie')
             .then(response => {
@@ -46,8 +44,8 @@
 
     axios.get('/api/habit/meta', config)
         .then(response => {
-            habitCategories.value = response.data.categories;
-            habitUnits.value = response.data.units;
+            UI.setHabitCategories(response.data.categories);
+            UI.setHabitUnits(response.data.units);
         })
         .catch(error => {
             console.error(error);
@@ -171,9 +169,7 @@
         @click="addHabit"
     >+</ion-button>
 
-    <AddEditHabit 
-        :habitCategories="habitCategories" 
-    />
+    <AddEditHabit />
     
 </template>
 

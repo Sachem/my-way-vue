@@ -4,24 +4,8 @@ export const useUIStore = defineStore('UI', {
     state: () => {
         return { 
             addEditHabitModalOpened: false,
-            habitUnits: [
-                {
-                    id: 1,
-                    name: "sets"
-                },
-                {
-                    id: 2,
-                    name: "reps"
-                },
-                {
-                    id: 3,
-                    name: "minutes"
-                },
-                {
-                    id: 3,
-                    name: "kilometers"
-                },
-            ]
+            habitCategories: [],
+            habitUnits: []
         }
     },
     // could also be defined as
@@ -29,6 +13,12 @@ export const useUIStore = defineStore('UI', {
     actions: {
         setAddEditHabitModalOpened(isOpen) {
             this.addEditHabitModalOpened = isOpen;
+        },
+        setHabitCategories(habitCategories) {
+            this.habitCategories = habitCategories;
+        },
+        setHabitUnits(habitUnits) {
+            this.habitUnits = habitUnits;
         },
     },
 })
