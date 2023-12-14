@@ -131,6 +131,11 @@
         console.log("adding new habit...")
         UI.setAddEditHabitModalOpened(true);
     }
+
+    function addEditHabit(formData){
+        console.log("addEditHabit... formData:")
+        console.log(formData)
+    }
 </script>
 
 <template>
@@ -169,7 +174,9 @@
         @click="addHabit"
     >+</ion-button>
 
-    <AddEditHabit />
+    <AddEditHabit 
+        @on-submit="addEditHabit" 
+    />
     
 </template>
 

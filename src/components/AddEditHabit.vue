@@ -8,6 +8,8 @@
 
     const UI = useUIStore()
     const habit = ref(null)
+    const emit = defineEmits(['onSubmit'])
+
  //   const measurable = ref(false)
 
     function onModalClose(){
@@ -23,6 +25,10 @@
 
         console.log('result', result);
         console.log('v$', v$);
+
+        if (result){
+            emit('onSubmit', formData)
+        }
     }
 
     const formData = reactive({
@@ -92,7 +98,7 @@
                             placeholder="Choose category"
                             v-model="formData.category_id"
                         >
-                            <IonSelectOption v-for="category in UI.habitCategories" key="category.id" value="category.id">{{ category.name }}</IonSelectOption>
+                            <IonSelectOption v-for="category in UI.habitCategories" :value="category.id">{{ category.name }}</IonSelectOption>
                         </IonSelect>
                         <IonBadge v-if="v$.category_id.$error" color="danger">Required</IonBadge> 
                     </IonItem>
@@ -121,7 +127,7 @@
                                 placeholder="Choose unit"
                                 v-model="formData.unit_id"
                             >
-                                <IonSelectOption v-for="unit in UI.habitUnits" key="unit.id" value="unit.id">{{ unit.name }}</IonSelectOption>
+                                <IonSelectOption v-for="unit in UI.habitUnits" :value="unit.id">{{ unit.name }}</IonSelectOption>
                             </IonSelect>
                             <IonBadge v-if="v$.unit_id.$error" color="danger">Required</IonBadge> 
                         </IonItem>
