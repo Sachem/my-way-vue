@@ -12,6 +12,15 @@
 
     const UI = useUIStore()
     
+    interface Habit {
+        id: number;
+        name: string;
+        category_id: number;
+        measurable: number;
+        goal: number;
+        progress: any;
+    }
+
     interface ProgressDate {
         date: string;
         dayOfWeek: string;
@@ -22,7 +31,8 @@
 
     const config = {};
 
-    const habits = ref([]);
+    const editedHabit = ref<null | Habit>(null);
+    const habits = ref<Habit[]>([]);
     const dates = ref<ProgressDate[]>([]); // TODO: move to UI store
  
     axios.get('/sanctum/csrf-cookie')
@@ -129,13 +139,66 @@
 
     function addHabit(){
         console.log("adding new habit...")
+        editedHabit.value = null;
         UI.setAddEditHabitModalOpened(true);
     }
 
-    function addEditHabit(formData){
-        console.log("addEditHabit... formData:")
-        console.log(formData)
+    function startEditHabit(habit: Habit){
+        console.log("editing habit ID: " + habit.id)
+        editedHabit.value = habit;
+        UI.setAddEditHabitModalOpened(true);
     }
+
+
+    const addEditHabit = data => {
+
+        console.log("addEditHabit... data:")
+        data = JSON.parse(JSON.stringify(data))
+        data.measurable = data.measurable ? 1 : 0 
+        console.log(data)
+
+        console.log("editedHabit.value", editedHabit.value)
+
+        if (editedHabit.value == null) {
+            // create new habit
+            axios.post('/api/habits', data, config)
+                .then(response => {
+                    console.log("POSTed");
+                    console.log(response.data);
+                    
+                    habits.value.push(response.data);
+                    UI.setAddEditHabitModalOpened(false);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        } else {
+            // update existing
+            axios.put('/api/habits/' + editedHabit.value.id, data, config)
+                .then(response => {
+                    console.log("PUT, habit ID: " + editedHabit.value.id);
+                    console.log(response.data);
+                    
+                    const respHabit = response.data;
+                    habits.value.map((h) => {
+                        if (h.id === respHabit.id) {
+                            console.log('yes, found', respHabit);
+
+                            return respHabit;
+                        } 
+            
+                        return h;
+                    });
+
+                    editedHabit.value = null;
+                    UI.setAddEditHabitModalOpened(false);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }
+
 </script>
 
 <template>
@@ -158,6 +221,7 @@
             @on-mark-completed="markCompleted" 
             @on-change-progress="changeProgress" 
             @on-delete="deleteHabit" 
+            @on-edit-habit="startEditHabit" 
             />
         </ion-list>
     </ion-content>
@@ -175,6 +239,8 @@
     >+</ion-button>
 
     <AddEditHabit 
+        :key="editedHabit ? editedHabit.id : '0'"
+        :editedHabit="editedHabit"
         @on-submit="addEditHabit" 
     />
     

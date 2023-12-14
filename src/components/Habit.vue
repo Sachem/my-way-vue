@@ -9,7 +9,7 @@
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     
     const props = defineProps(['habit'])
-    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete'])
+    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete', 'onEditHabit'])
     const popoverOpened = ref(false);
 
     console.log(props.habit)
@@ -26,6 +26,8 @@
 
     function onEditStart(){
         console.log('onEditStart');
+
+        emit('onEditHabit', props.habit);
     }
 
     function onChangeProgress(dateIndex, progress){
@@ -145,7 +147,8 @@
         >
             <ion-icon :icon="ellipsisVerticalCircleOutline"></ion-icon>
         </ion-button>
-        <ion-popover :trigger="'open-menu-habit-' + habit.id" :isOpen="popoverOpened">
+        <!-- :trigger="'open-menu-habit-' + habit.id" -->
+        <ion-popover  :isOpen="popoverOpened">
             <ion-content class="ion-padding">
                 <ion-item @click="onCalendarOpen">
                     <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar

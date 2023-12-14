@@ -7,10 +7,12 @@
     import { required, integer, minValue } from '@vuelidate/validators'
 
     const UI = useUIStore()
-    const habit = ref(null)
+
+    const props = defineProps(['editedHabit']) // TODO: can this logic be improved?
+                                               // ...read here: https://vuejs.org/guide/essentials/reactivity-fundamentals.html#why-refs
+
     const emit = defineEmits(['onSubmit'])
 
- //   const measurable = ref(false)
 
     function onModalClose(){
         console.log('modal closing...');
@@ -18,7 +20,6 @@
     }
 
     const handleSubmit = async() => {
-        // e.preventDefault();
         console.log('form submitted...');
 
         const result = await v$.value.$validate();
@@ -31,18 +32,29 @@
         }
     }
 
-    const formData = reactive({
+    let formData = reactive({
         measurable: false,
-        title: "",
+        name: "",
         category_id: null,
         goal: "",
         unit_id: null
     });
-
+    
+    if (props.editedHabit != null){
+        const habit = ref(props.editedHabit)
+        formData = reactive({
+            measurable: habit.value.measurable == 1,
+            name: habit.value.name,
+            category_id: habit.value.category_id,
+            goal: habit.value.goal,
+            unit_id: habit.value.unit_id
+        });
+    }
+console.log('formData', formData);
     const rules = computed(() => {
         const localRules = {
             measurable: { required },
-            title: { required },
+            name: { required },
             category_id: { required },
             goal: {},
             unit_id: {}
@@ -68,7 +80,7 @@
     >
         <IonHeader>
             <IonToolbar>
-                <IonTitle>{{ habit == null ? 'Create New Habit' : 'Edit Habit' }}</IonTitle>
+                <IonTitle>{{ props.editedHabit == null ? 'Create New Habit' : 'Edit Habit' }}</IonTitle>
                 <IonButtons slot="end">
                     <IonButton @click="onModalClose">Close</IonButton>
                 </IonButtons>
@@ -76,21 +88,15 @@
         </IonHeader>
         <IonContent class="ion-padding">
             <IonList lines="none">
-                    <!-- <form v-on:submit="handleSubmit"> -->
-                    <input 
-                        value="0"
-                        type="hidden"
-                        name="measurable"
-                    />
                     <IonItem class='addHabitFormItem'>
                         <IonLabel>Habit Title</IonLabel>
                         <IonInput
                             class="text-input"
                             placeholder="Enter habit title"
                             slot="end"
-                            v-model="formData.title"
+                            v-model="formData.name"
                         ></IonInput>
-                        <IonBadge v-if="v$.title.$error" color="danger">Required</IonBadge> 
+                        <IonBadge v-if="v$.name.$error" color="danger">Required</IonBadge> 
                     </IonItem>
                     <IonItem class='addHabitFormItem'>
                         <IonSelect 
@@ -138,9 +144,8 @@
                             size='large'
                             class="submitAddEditHabit"
                             @click="handleSubmit"
-                        >{{ habit == null ? 'Create' : 'Update' }}</IonButton>
+                        >{{ props.editedHabit == null ? 'Create' : 'Update' }}</IonButton>
                     </IonItem>
-                    <!-- </form> -->
                 </IonList>
         </IonContent>
     </IonModal>
