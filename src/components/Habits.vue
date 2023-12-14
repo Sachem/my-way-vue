@@ -128,15 +128,6 @@
         });
 
     }
-
-    function deleteHabit(habitId){
-        console.log("delete ID: " + habitId)
-
-        habits.value = habits.value.filter((h) => h.id !== habitId);
-
-        console.log(habits)
-    }
-
     function addHabit(){
         console.log("adding new habit...")
         editedHabit.value = null;
@@ -197,6 +188,26 @@
                     console.error(error);
                 });
         }
+    }
+
+    function deleteHabit(habitId: number){
+        console.log("deleting habit ID: " + habitId);
+
+        console.log(habits.value)
+
+        axios.delete('/api/habits/' + habitId, config)
+            .then(response => {
+                console.log("DELETED");
+                console.log(response.data);
+                
+                habits.value = habits.value.filter((h) => h.id !== habitId);
+        
+                console.log(habits.value)
+
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
 </script>
