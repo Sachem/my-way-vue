@@ -13,6 +13,7 @@
 
     const emit = defineEmits(['onSubmit'])
 
+    const habit = props.editedHabit;
 
     function onModalClose(){
         console.log('modal closing...');
@@ -74,13 +75,13 @@ console.log('formData', formData);
 </script>
 
 <template>
+    <!-- onDidDismiss="onDidDismiss" -->
     <IonModal 
         :is-open="UI.addEditHabitModalOpened" 
-        onDidDismiss="onDidDismiss"
     >
         <IonHeader>
             <IonToolbar>
-                <IonTitle>{{ props.editedHabit == null ? 'Create New Habit' : 'Edit Habit' }}</IonTitle>
+                <IonTitle>{{ habit == null ? 'Create New Habit' : 'Edit Habit' }}</IonTitle>
                 <IonButtons slot="end">
                     <IonButton @click="onModalClose">Close</IonButton>
                 </IonButtons>
@@ -144,7 +145,7 @@ console.log('formData', formData);
                             size='large'
                             class="submitAddEditHabit"
                             @click="handleSubmit"
-                        >{{ props.editedHabit == null ? 'Create' : 'Update' }}</IonButton>
+                        >{{ habit == null ? 'Create' : 'Update' }}</IonButton>
                     </IonItem>
                 </IonList>
         </IonContent>

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 
-    import { ref } from 'vue'
+    import { reactive, ref } from 'vue'
     import { IonContent, IonList, IonItem, IonButton } from '@ionic/vue';
     import Habit from '../components/Habit.vue'
     import AddEditHabit from '../components/AddEditHabit.vue'
     import { useUIStore } from '@/stores/ui'
-    import { useAuthStore } from '@/stores/auth'
 
     import { inject } from 'vue'
     const axios: any = inject('axios') 
@@ -148,7 +147,6 @@
         data.measurable = data.measurable ? 1 : 0 
         console.log(data)
 
-        console.log("editedHabit.value", editedHabit.value)
 
         if (editedHabit.value == null) {
             // create new habit
@@ -157,8 +155,10 @@
                     console.log("POSTed");
                     console.log(response.data);
                     
-                    habits.value.push(response.data);
+                    habits.value.push(reactive(response.data));
                     UI.setAddEditHabitModalOpened(false);
+                    console.log(habits.value)
+
                 })
                 .catch(error => {
                     console.error(error);
@@ -171,15 +171,16 @@
                     console.log(response.data);
                     
                     const respHabit = response.data;
-                    habits.value.map((h) => {
+                    habits.value = habits.value.map((h) => {
                         if (h.id === respHabit.id) {
                             console.log('yes, found', respHabit);
 
-                            return respHabit;
+                            return reactive(respHabit);
                         } 
             
                         return h;
                     });
+                    console.log(habits.value)
 
                     editedHabit.value = null;
                     UI.setAddEditHabitModalOpened(false);
@@ -193,17 +194,12 @@
     function deleteHabit(habitId: number){
         console.log("deleting habit ID: " + habitId);
 
-        console.log(habits.value)
-
         axios.delete('/api/habits/' + habitId, config)
             .then(response => {
                 console.log("DELETED");
                 console.log(response.data);
                 
                 habits.value = habits.value.filter((h) => h.id !== habitId);
-        
-                console.log(habits.value)
-
             })
             .catch(error => {
                 console.error(error);
@@ -224,7 +220,7 @@
                 <p>No habits yet, add one now.</p>
             </ion-item>
         </ion-list>
-        <ion-list v-else className="ion-no-padding">
+        <ion-list v-else-if="UI.appView == 'home'" className="ion-no-padding">
             <Habit
             v-for="habit in habits"
             :habit="habit"
@@ -234,6 +230,52 @@
             @on-delete="deleteHabit" 
             @on-edit-habit="startEditHabit" 
             />
+        </ion-list>
+        <ion-list v-else className="ion-no-padding">
+            <IonItem>
+                <div className='multiDayWrapper'>
+                    <div className='habitNamesColumn'>
+                        <table className='habitsTable habitNamesTable'>
+                            <thead>
+                            <tr><td>&nbsp;</td></tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="habit in habits" :key="habit.id">
+                                    <td key="name">
+                                        <div>
+                                            {{ habit.name }}
+                                            <template>
+                                                <br />
+                                                <span>Goal: {{ habit.goal }}</span>
+                                            </template>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className='habitProgressColumn'>
+                        <table className='habitsTable habitProgressTable'>
+                            <thead>
+                            <tr>
+                                <td v-for="date in dates" :key="date.date">{{ date.dayOfWeek }}<br /><span>{{ date.dayInMonth }}</span></td> 
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <Habit
+                                    v-for="habit in habits"
+                                    :habit="habit"
+                                    :key="habit.id"
+                                    @on-mark-completed="markCompleted" 
+                                    @on-change-progress="changeProgress" 
+                                    @on-delete="deleteHabit" 
+                                    @on-edit-habit="startEditHabit" 
+                                /> 
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </IonItem>
         </ion-list>
     </ion-content>
 

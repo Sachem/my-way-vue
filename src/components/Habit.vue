@@ -1,20 +1,21 @@
 <script setup lang="ts">
 
     import { ref } from 'vue'
-    import { 
-        IonAlert, IonButton, IonButtons, IonCheckbox, IonCol, IonContent, 
-        IonIcon, IonItem, IonLabel, IonPopover, IonRow, IonSelect, IonSelectOption 
-    } from '@ionic/vue';
+    import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel, IonPopover } from '@ionic/vue';
     import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
+    import { useUIStore } from '@/stores/ui'
+    import HabitProgressMultipleDayView from '../components/HabitProgressMultipleDayView.vue'
+
+    const UI = useUIStore()
     
     const props = defineProps(['habit'])
     const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete', 'onEditHabit'])
     const popoverOpened = ref(false);
 
-    console.log(props.habit)
+    // console.log(props.habit)
 
-    function onMarkCompleted(){
+    function onMarkCompleted(dateIndex){
         console.log('onMarkCompleted');
 
         emit('onMarkCompleted', props.habit, 0)
@@ -22,19 +23,20 @@
 
     function onCalendarOpen(){
         console.log('onCalendarOpen');
+        setPopoverOpened(false);
     }
 
     function onEditStart(){
         console.log('onEditStart');
 
         emit('onEditHabit', props.habit);
+        setPopoverOpened(false);
     }
 
     function onChangeProgress(dateIndex, progress){
         console.log('onChangeProgress: ' + progress);
 
         emit('onChangeProgress', props.habit, dateIndex, progress)
-
     }
 
 
@@ -42,6 +44,7 @@
         const alert = await alertController.create(deleteHabitAlertParams);
 
         await alert.present();
+        setPopoverOpened(false);
     };
 
     const deleteHabitAlertParams = {
@@ -62,9 +65,9 @@
         ]
     };
 
-    function setPopoverOpened(){
+    function setPopoverOpened(opened){
         console.log('setPopoverOpened');
-        popoverOpened.value = true;
+        popoverOpened.value = opened;
     }
 
     const updateProgressAlertButtons=[
@@ -94,7 +97,7 @@
 </script>
 
 <template>
-<ion-item>
+<ion-item v-if="UI.appView == 'home'">
     <ion-checkbox 
         :disabled="habit.measurable" 
         :checked="habit.progress[0].done"
@@ -141,14 +144,13 @@
             <ion-icon :icon="trashOutline"></ion-icon>
         </ion-button>
         <ion-button 
-            :id="habit.id"
-            @click="setPopoverOpened"
+            :id="'open-menu-habit-' + habit.id"
+            @click="setPopoverOpened(true)"
             className='ion-hide-sm-up'
         >
             <ion-icon :icon="ellipsisVerticalCircleOutline"></ion-icon>
         </ion-button>
-        <!-- :trigger="'open-menu-habit-' + habit.id" -->
-        <ion-popover  :isOpen="popoverOpened">
+        <ion-popover :trigger="'open-menu-habit-' + habit.id" :isOpen="popoverOpened">
             <ion-content class="ion-padding">
                 <ion-item @click="onCalendarOpen">
                     <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar
@@ -163,6 +165,17 @@
         </ion-popover>
     </ion-buttons>
 </ion-item>
+<tr v-else>
+    <td v-for="(day, index) in habit.progress" :key="day.date">
+        <HabitProgressMultipleDayView 
+            :habit="habit" 
+            :day="day"
+            :index="index"
+            @on-mark-completed="onMarkCompleted(dateIndex)" 
+            @on-change-progress="onChangeProgress(dateIndex, progress)" 
+        />
+    </td>
+</tr>
 </template>
 
 <style scoped>
