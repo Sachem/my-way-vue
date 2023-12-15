@@ -5,7 +5,6 @@
     import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     import { useUIStore } from '@/stores/ui'
-    import HabitProgressMultipleDayView from '../components/HabitProgressMultipleDayView.vue'
 
     const UI = useUIStore()
     
@@ -167,13 +166,24 @@
 </ion-item>
 <tr v-else>
     <td v-for="(day, index) in habit.progress" :key="day.date">
-        <HabitProgressMultipleDayView 
-            :habit="habit" 
-            :day="day"
-            :index="index"
-            @on-mark-completed="onMarkCompleted(dateIndex)" 
-            @on-change-progress="onChangeProgress(dateIndex, progress)" 
-        />
+        <IonButton 
+            v-if="habit.measurable == 1"
+            fill="clear"
+            size='small'
+            :id="'update-progress-habit-'+habit.id+'-day-'+day.date"
+        >
+            {{ day.progress }}
+        </IonButton>
+        <IonIcon
+            v-else-if="day.done == 1" 
+            @click="onMarkCompleted"
+            :icon="checkmark"
+        ></IonIcon>
+        <IonIcon
+            v-else 
+            @click="onMarkCompleted"
+            :icon="close"
+        ></IonIcon>
     </td>
 </tr>
 </template>
