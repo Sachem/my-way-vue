@@ -30,7 +30,7 @@ import './theme/variables.css';
 const hostname = window && window.location && window.location.hostname;
 
 //let apiEndpoint = 'https://myway-api.01solutions.co.uk';
-let apiEndpoint = 'http://0.0.0.0';
+let apiEndpoint = 'http://localhost';
 console.log('apiEndpoint', apiEndpoint);
 
 axios.defaults.baseURL = apiEndpoint;
