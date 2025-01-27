@@ -7,6 +7,7 @@
     import { useUIStore } from '@/stores/ui'
     import { nextTick } from 'vue';
     import { inject } from 'vue'
+    import { alertController } from '@ionic/vue';
 
 
     const axios: any = inject('axios') 
@@ -206,21 +207,6 @@
         }
     }
 
-    function deleteHabit(habitId: number){
-        console.log("deleting habit ID: " + habitId);
-
-        axios.delete('/api/habits/' + habitId, config)
-            .then(response => {
-                console.log("DELETED");
-                console.log(response.data);
-                
-                habits.value = habits.value.filter((h) => h.id !== habitId);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
     function openPopover(habit) {
         popoverHabit.value = habit;
         popoverOpened.value = true;
@@ -235,6 +221,56 @@
     function calendarOpen(){
         console.log('calendarOpen for habit: ' + popoverHabit.value?.name);
        // setPopoverOpened(false);
+    }
+
+    function deleteHabit(habit: Habit)
+    {
+        console.log('deleteHabit: ' + habit.name);
+
+        editedHabit.value = habit;
+        presentDeleteAlert();
+    }
+
+    const presentDeleteAlert = async () => {
+        const alert = await alertController.create(deleteHabitAlertParams);
+
+        await alert.present();
+      //  setPopoverOpened(false);
+    };
+
+    const deleteHabitAlertParams = {
+        header: 'Are you sure you want to delete this habit?',
+        buttons: [
+            {
+                text: 'No',
+                role: 'cancel',
+            },
+            {
+                text: 'Yes',
+                role: 'confirm',
+                handler: () => {
+                    if (editedHabit.value == null) return;
+                    console.log('deleting habit...' + editedHabit.value.id);
+                    requestDeleteHabit(editedHabit.value.id);
+                },
+            },
+        ]
+    };
+
+    function requestDeleteHabit(habitId: number){
+        console.log("deleting habit ID: " + habitId);
+        editedHabit.value = null;
+
+        axios.delete('/api/habits/' + habitId, config)
+            .then(response => {
+                console.log("DELETED");
+                console.log(response.data);
+                
+                habits.value = habits.value.filter((h) => h.id !== habitId);
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 
 </script>

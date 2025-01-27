@@ -2,7 +2,6 @@
 
     import { ref } from 'vue'
     import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel } from '@ionic/vue';
-    import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     import { useUIStore } from '@/stores/ui'
 
@@ -37,32 +36,6 @@
 
         emit('on-change-progress', props.habit, dateIndex, progress)
     }
-
-
-    const presentDeleteAlert = async () => {
-        const alert = await alertController.create(deleteHabitAlertParams);
-
-        await alert.present();
-      //  setPopoverOpened(false);
-    };
-
-    const deleteHabitAlertParams = {
-        header: 'Are you sure you want to delete this habit?',
-        buttons: [
-            {
-                text: 'No',
-                role: 'cancel',
-            },
-            {
-                text: 'Yes',
-                role: 'confirm',
-                handler: () => {
-                    console.log('deleting habit...' + props.habit.id);
-                    emit('on-delete', props.habit.id);
-                },
-            },
-        ]
-    };
 
     function setPopoverOpened(opened){
         console.log('setPopoverOpened');
@@ -135,7 +108,7 @@
             <ion-icon :icon="createOutline"></ion-icon>
         </ion-button>
         <ion-button 
-            @click="presentDeleteAlert"
+            @click="$emit('on-delete', habit)"
             fill="clear"
             size='large'
             className='ion-hide-sm-down'
