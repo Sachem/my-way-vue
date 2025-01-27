@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
     import { reactive, ref } from 'vue'
-    import { IonContent, IonList, IonItem, IonButton } from '@ionic/vue';
+    import { IonContent, IonList, IonItem, IonButton, IonPopover, IonIcon } from '@ionic/vue';
     import Habit from '../components/Habit.vue'
     import AddEditHabit from '../components/AddEditHabit.vue'
     import { useUIStore } from '@/stores/ui'
-
+    import { nextTick } from 'vue';
     import { inject } from 'vue'
+
+
     const axios: any = inject('axios') 
 
     const UI = useUIStore()
@@ -33,7 +35,9 @@
     const editedHabit = ref<null | Habit>(null);
     const habits = ref<Habit[]>([]);
     const dates = ref<ProgressDate[]>([]); // TODO: move to UI store
- 
+    const popoverOpened = ref(false);
+    const popoverHabit = ref<null | Habit>(null);
+
     axios.get('/sanctum/csrf-cookie')
             .then(response => {
               
@@ -133,9 +137,15 @@
         UI.setAddEditHabitModalOpened(true);
     }
 
-    function startEditHabit(habit: Habit){
-        console.log("editing habit ID: " + habit.id)
-        editedHabit.value = habit;
+    function startEditHabit(){
+        if (popoverHabit.value == null)
+        {
+            return;
+        }
+        console.log("editing habit ID: " + popoverHabit.value.id)
+        editedHabit.value = popoverHabit.value;
+        popoverHabit.value = null;
+        popoverOpened.value = false;
         UI.setAddEditHabitModalOpened(true);
     }
 
@@ -158,6 +168,7 @@
                     habits.value.push(reactive(response.data));
                     UI.setAddEditHabitModalOpened(false);
                     console.log(habits.value)
+
 
                 })
                 .catch(error => {
@@ -184,6 +195,10 @@
 
                     editedHabit.value = null;
                     UI.setAddEditHabitModalOpened(false);
+                    
+                    console.log("here");
+                    console.log("UI.addEditHabitModalOpened: " + UI.addEditHabitModalOpened);
+
                 })
                 .catch(error => {
                     console.error(error);
@@ -204,6 +219,22 @@
             .catch(error => {
                 console.error(error);
             });
+    }
+
+    function openPopover(habit) {
+        popoverHabit.value = habit;
+        popoverOpened.value = true;
+    }
+
+    function closePopover() {
+        popoverHabit.value = null;
+        popoverOpened.value = false;
+    }
+
+    
+    function calendarOpen(){
+        console.log('calendarOpen for habit: ' + popoverHabit.value?.name);
+       // setPopoverOpened(false);
     }
 
 </script>
@@ -229,10 +260,11 @@
             @on-change-progress="changeProgress" 
             @on-delete="deleteHabit" 
             @on-edit-habit="startEditHabit" 
+            @on-open-popover="openPopover"
             />
         </ion-list>
         <ion-list v-else className="ion-no-padding">
-            <IonItem>
+            <ion-item>
                 <div className='multiDayWrapper'>
                     <div className='habitNamesColumn'>
                         <table className='habitsTable habitNamesTable'>
@@ -275,7 +307,7 @@
                         </table>
                     </div>
                 </div>
-            </IonItem>
+            </ion-item>
         </ion-list>
     </ion-content>
 
@@ -291,12 +323,28 @@
         @click="addHabit"
     >+</ion-button>
 
+    <ion-popover 
+        :isOpen="popoverOpened"
+        @ionPopoverDidDismiss="closePopover"
+    >
+        <ion-content class="ion-padding">
+        <ion-item @click="calendarOpen">
+            <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar
+        </ion-item>
+        <ion-item @click="startEditHabit">
+            <ion-icon :icon="createOutline"></ion-icon>&nbsp;Edit
+        </ion-item>
+        <ion-item @click="presentDeleteAlert">
+            <ion-icon :icon="trashOutline"></ion-icon>&nbsp;Delete
+        </ion-item>
+        </ion-content>
+    </ion-popover>
+    
     <AddEditHabit 
         :key="editedHabit ? editedHabit.id : '0'"
         :editedHabit="editedHabit"
         @on-submit="addEditHabit" 
     />
-    
 </template>
 
 <style scoped>

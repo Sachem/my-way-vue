@@ -5,7 +5,7 @@
     import { useUIStore } from '@/stores/ui'
     import useVuelidate from '@vuelidate/core'
     import { required, integer, minValue } from '@vuelidate/validators'
-
+    
     const UI = useUIStore()
 
     const props = defineProps(['editedHabit']) // TODO: can this logic be improved?
@@ -74,80 +74,80 @@ console.log('formData', formData);
     console.log('UI.habitCategories', UI.habitCategories);
 </script>
 
-<template>
+<template :is-open="UI.addEditHabitModalOpened" >
     <!-- onDidDismiss="onDidDismiss" -->
-    <IonModal 
+    <ion-modal 
         :is-open="UI.addEditHabitModalOpened" 
     >
-        <IonHeader>
-            <IonToolbar>
-                <IonTitle>{{ habit == null ? 'Create New Habit' : 'Edit Habit' }}</IonTitle>
-                <IonButtons slot="end">
-                    <IonButton @click="onModalClose">Close</IonButton>
-                </IonButtons>
-            </IonToolbar>
-        </IonHeader>
-        <IonContent class="ion-padding">
-            <IonList lines="none">
-                    <IonItem class='addHabitFormItem'>
-                        <IonLabel>Habit Title</IonLabel>
-                        <IonInput
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>{{ habit == null ? 'Create New Habit' : 'Edit Habit' }}</ion-title>
+                <ion-buttons slot="end">
+                    <ion-button @click="onModalClose">Close</ion-button>
+                </ion-buttons>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+            <ion-list lines="none">
+                    <ion-item class='addHabitFormItem'>
+                        <ion-label>Habit Title</ion-label>
+                        <ion-input
                             class="text-input"
                             placeholder="Enter habit title"
                             slot="end"
                             v-model="formData.name"
-                        ></IonInput>
-                        <IonBadge v-if="v$.name.$error" color="danger">Required</IonBadge> 
-                    </IonItem>
-                    <IonItem class='addHabitFormItem'>
-                        <IonSelect 
+                        ></ion-input>
+                        <ion-badge v-if="v$.name.$error" color="danger">Required</ion-badge> 
+                    </ion-item>
+                    <ion-item class='addHabitFormItem'>
+                        <ion-select 
                             label="Habit Category" 
                             placeholder="Choose category"
                             v-model="formData.category_id"
                         >
-                            <IonSelectOption v-for="category in UI.habitCategories" :value="category.id">{{ category.name }}</IonSelectOption>
-                        </IonSelect>
-                        <IonBadge v-if="v$.category_id.$error" color="danger">Required</IonBadge> 
-                    </IonItem>
-                    <IonItem class='addHabitFormItem'>
-                        <IonToggle
+                            <ion-select-option v-for="category in UI.habitCategories" :value="category.id">{{ category.name }}</ion-select-option>
+                        </ion-select>
+                        <ion-badge v-if="v$.category_id.$error" color="danger">Required</ion-badge> 
+                    </ion-item>
+                    <ion-item class='addHabitFormItem'>
+                        <ion-toggle
                             v-model="formData.measurable"
                         >
-                            <IonLabel>Is habit Measurable?</IonLabel>
-                            <IonNote color="medium">(leave unchecked for "Yes / No")</IonNote>
-                        </IonToggle>
-                    </IonItem>
+                            <ion-label>Is habit Measurable?</ion-label>
+                            <ion-note color="medium">(leave unchecked for "Yes / No")</ion-note>
+                        </ion-toggle>
+                    </ion-item>
                     <template v-if="formData.measurable">
-                        <IonItem class='addHabitFormItem'>
-                            <IonLabel>Goal</IonLabel>
-                            <IonInput
+                        <ion-item class='addHabitFormItem'>
+                            <ion-label>Goal</ion-label>
+                            <ion-input
                                 class="text-input" 
                                 placeholder="Enter quantity"
                                 slot="end"
                                 v-model="formData.goal"
-                            ></IonInput>
-                            <IonBadge v-if="v$.goal.$error" color="danger">Required</IonBadge> 
-                        </IonItem>
-                        <IonItem class='addHabitFormItem'>
-                            <IonSelect 
+                            ></ion-input>
+                            <ion-badge v-if="v$.goal.$error" color="danger">Required</ion-badge> 
+                        </ion-item>
+                        <ion-item class='addHabitFormItem'>
+                            <ion-select 
                                 label="Habit Unit" 
                                 placeholder="Choose unit"
                                 v-model="formData.unit_id"
                             >
-                                <IonSelectOption v-for="unit in UI.habitUnits" :value="unit.id">{{ unit.name }}</IonSelectOption>
-                            </IonSelect>
-                            <IonBadge v-if="v$.unit_id.$error" color="danger">Required</IonBadge> 
-                        </IonItem>
+                                <ion-select-option v-for="unit in UI.habitUnits" :value="unit.id">{{ unit.name }}</ion-select-option>
+                            </ion-select>
+                            <ion-badge v-if="v$.unit_id.$error" color="danger">Required</ion-badge> 
+                        </ion-item>
                     </template>
-                    <IonItem class='submitItem'>
-                        <IonButton
+                    <ion-item class='submitItem'>
+                        <ion-button
                             type="submit"
                             size='large'
                             class="submitAddEditHabit"
                             @click="handleSubmit"
-                        >{{ habit == null ? 'Create' : 'Update' }}</IonButton>
-                    </IonItem>
-                </IonList>
-        </IonContent>
-    </IonModal>
+                        >{{ habit == null ? 'Create' : 'Update' }}</ion-button>
+                    </ion-item>
+                </ion-list>
+        </ion-content>
+    </ion-modal>
 </template>

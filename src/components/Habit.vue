@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
     import { ref } from 'vue'
-    import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel, IonPopover } from '@ionic/vue';
+    import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel } from '@ionic/vue';
     import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     import { useUIStore } from '@/stores/ui'
@@ -9,8 +9,8 @@
     const UI = useUIStore()
     
     const props = defineProps(['habit'])
-    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete', 'onEditHabit'])
-    const popoverOpened = ref(false);
+    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete', 'onEditHabit', 'onOpenPopover'])
+    //const popoverOpened = ref(false);
 
     // console.log(props.habit)
 
@@ -22,14 +22,14 @@
 
     function onCalendarOpen(){
         console.log('onCalendarOpen');
-        setPopoverOpened(false);
+       // setPopoverOpened(false);
     }
 
     function onEditStart(){
         console.log('onEditStart');
 
         emit('onEditHabit', props.habit);
-        setPopoverOpened(false);
+      //  setPopoverOpened(false);
     }
 
     function onChangeProgress(dateIndex, progress){
@@ -43,7 +43,7 @@
         const alert = await alertController.create(deleteHabitAlertParams);
 
         await alert.present();
-        setPopoverOpened(false);
+      //  setPopoverOpened(false);
     };
 
     const deleteHabitAlertParams = {
@@ -66,7 +66,7 @@
 
     function setPopoverOpened(opened){
         console.log('setPopoverOpened');
-        popoverOpened.value = opened;
+       // popoverOpened.value = opened;
     }
 
     const updateProgressAlertButtons=[
@@ -144,24 +144,11 @@
         </ion-button>
         <ion-button 
             :id="'open-menu-habit-' + habit.id"
-            @click="setPopoverOpened(true)"
+            @click="$emit('onOpenPopover', habit)"
             className='ion-hide-sm-up'
         >
             <ion-icon :icon="ellipsisVerticalCircleOutline"></ion-icon>
         </ion-button>
-        <ion-popover :trigger="'open-menu-habit-' + habit.id" :isOpen="popoverOpened">
-            <ion-content class="ion-padding">
-                <ion-item @click="onCalendarOpen">
-                    <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar
-                </ion-item>
-                <ion-item @click="onEditStart">
-                    <ion-icon :icon="createOutline"></ion-icon>&nbsp;Edit
-                </ion-item> 
-                <ion-item @click="presentDeleteAlert">
-                    <ion-icon :icon="trashOutline"></ion-icon>&nbsp;Delete
-                </ion-item>
-            </ion-content>
-        </ion-popover>
     </ion-buttons>
 </ion-item>
 <tr v-else>
