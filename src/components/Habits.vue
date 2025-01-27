@@ -227,6 +227,7 @@
     {
         console.log('deleteHabit: ' + habit.name);
 
+        closePopover();
         editedHabit.value = habit;
         presentDeleteAlert();
     }
@@ -370,7 +371,7 @@
         <ion-item @click="startEditHabit">
             <ion-icon :icon="createOutline"></ion-icon>&nbsp;Edit
         </ion-item>
-        <ion-item @click="presentDeleteAlert">
+        <ion-item @click="popoverHabit && deleteHabit(popoverHabit)">
             <ion-icon :icon="trashOutline"></ion-icon>&nbsp;Delete
         </ion-item>
         </ion-content>
