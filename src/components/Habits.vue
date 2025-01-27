@@ -236,7 +236,6 @@
         const alert = await alertController.create(deleteHabitAlertParams);
 
         await alert.present();
-      //  setPopoverOpened(false);
     };
 
     const deleteHabitAlertParams = {

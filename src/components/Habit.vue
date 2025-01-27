@@ -9,37 +9,21 @@
     
     const props = defineProps(['habit'])
     const emit = defineEmits(['on-mark-completed', 'on-change-progress', 'on-delete', 'on-edit-habit', 'on-open-popover'])
-    //const popoverOpened = ref(false);
 
-    // console.log(props.habit)
-
-    function onMarkCompleted(dateIndex){
+    function onMarkCompleted(dateIndex: number){
         console.log('onMarkCompleted');
 
-        emit('on-mark-completed', props.habit, 0)
+        emit('on-mark-completed', props.habit, dateIndex)
     }
 
     function onCalendarOpen(){
         console.log('onCalendarOpen');
-       // setPopoverOpened(false);
     }
 
     function onEditStart(){
         console.log('onEditStart');
 
         emit('on-edit-habit', props.habit);
-      //  setPopoverOpened(false);
-    }
-
-    function onChangeProgress(dateIndex, progress){
-        console.log('onChangeProgress: ' + progress);
-
-        emit('on-change-progress', props.habit, dateIndex, progress)
-    }
-
-    function setPopoverOpened(opened){
-        console.log('setPopoverOpened');
-       // popoverOpened.value = opened;
     }
 
     const updateProgressAlertButtons=[
@@ -55,6 +39,12 @@
             }
         }
     ];
+
+    function onChangeProgress(dateIndex, progress){
+        console.log('onChangeProgress: ' + progress);
+
+        emit('on-change-progress', props.habit, dateIndex, progress)
+    }
 
     const updateProgressAlertInputs=[
         {
@@ -73,7 +63,7 @@
     <ion-checkbox 
         :disabled="habit.measurable" 
         :checked="habit.progress[0].done"
-        @click="onMarkCompleted"
+        @click="onMarkCompleted(0)"
     ></ion-checkbox>
     <ion-label>
         {{ habit.name }} 
@@ -136,12 +126,12 @@
         </IonButton>
         <IonIcon
             v-else-if="day.done == 1" 
-            @click="onMarkCompleted"
+            @click="onMarkCompleted(index)"
             :icon="checkmark"
         ></IonIcon>
         <IonIcon
             v-else 
-            @click="onMarkCompleted"
+            @click="onMarkCompleted(index)"
             :icon="close"
         ></IonIcon>
     </td>
