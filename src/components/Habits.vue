@@ -8,7 +8,7 @@
     import { nextTick } from 'vue';
     import { inject } from 'vue'
     import { alertController } from '@ionic/vue';
-
+    import { AlertInput } from '@ionic/core';
 
     const axios: any = inject('axios') 
 
@@ -34,6 +34,7 @@
     const config = {};
 
     const editedHabit = ref<null | Habit>(null);
+    const editedDateIndex = ref(0);
     const habits = ref<Habit[]>([]);
     const dates = ref<ProgressDate[]>([]); // TODO: move to UI store
     const popoverOpened = ref(false);
@@ -98,7 +99,56 @@
 
     }
 
-    function changeProgress(habit, dateIndex, progress){
+    function changeProgress(habit: Habit, dateIndex: number)
+    {
+        editedHabit.value = habit;
+        editedDateIndex.value = dateIndex;
+
+        presentChangeProgressAlert();
+    }
+
+    const presentChangeProgressAlert = async () => {
+        const updateProgressAlertInputs: AlertInput[] = [
+            {
+                name: 'progress',
+                type: 'number',
+                placeholder: 'Progress',
+                min: 0,
+                value: editedHabit.value?.progress[0]?.progress ?? 0,
+            }
+        ];
+
+        const alert = await alertController.create({
+            header: "What is your progress today?",
+            inputs: updateProgressAlertInputs,
+            buttons: updateProgressAlertButtons,
+        });
+
+        await alert.present();
+    };
+
+    
+    const updateProgressAlertButtons=[
+        {
+            text: 'Cancel',
+            role: 'cancel'
+        },
+        {
+            text: 'OK',
+            role: 'confirm',
+            handler: (alertData) => {
+                requestChangeProgress(alertData.progress);
+            }
+        }
+    ];
+
+    function requestChangeProgress(progress: number){
+
+        const habit = editedHabit.value;
+        const dateIndex = editedDateIndex.value;
+
+        if (! habit) return;
+
         console.log("changing progress of habit ID: " + habit.id+ " to "+progress +" at dateIndex: "+dateIndex);
 
         const data = {
@@ -132,6 +182,7 @@
         });
 
     }
+
     function addHabit(){
         console.log("adding new habit...")
         editedHabit.value = null;
@@ -272,6 +323,7 @@
                 console.error(error);
             });
     }
+
 
 </script>
 

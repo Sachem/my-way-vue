@@ -26,36 +26,6 @@
         emit('on-edit-habit', props.habit);
     }
 
-    const updateProgressAlertButtons=[
-        {
-            text: 'Cancel',
-            role: 'cancel'
-        },
-        {
-            text: 'OK',
-            role: 'confirm',
-            handler: (alertData) => {
-                onChangeProgress(0, alertData.progress);
-            }
-        }
-    ];
-
-    function onChangeProgress(dateIndex, progress){
-        console.log('onChangeProgress: ' + progress);
-
-        emit('on-change-progress', props.habit, dateIndex, progress)
-    }
-
-    const updateProgressAlertInputs=[
-        {
-            name: 'progress',
-            type: 'number',
-            placeholder: 'Progress',
-            min: 0,
-            value: props.habit.progress[0].progress
-        }
-    ];
-
 </script>
 
 <template>
@@ -69,15 +39,9 @@
         {{ habit.name }} 
         <template v-if="habit.measurable == 1"> 
             <br />
-            <ion-label :id="'update-progress-habit-'+habit.id" class="smallGrey">
+            <ion-label @click="$emit('on-change-progress', props.habit, 0)" class="smallGrey">
                 Progress: <b>{{ habit.progress[0].progress }} / {{ habit.goal }}</b> {{ habit.unit }}
             </ion-label>
-            <ion-alert
-                :trigger="'update-progress-habit-'+habit.id"
-                header="What is your progress today?"
-                :buttons="updateProgressAlertButtons"
-                :inputs="updateProgressAlertInputs"
-            ></ion-alert>
         </template>
     </ion-label>
     <ion-buttons slot="end">
