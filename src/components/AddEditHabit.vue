@@ -74,7 +74,7 @@ console.log('formData', formData);
     console.log('UI.habitCategories', UI.habitCategories);
 </script>
 
-<template :is-open="UI.addEditHabitModalOpened" >
+<template>
     <!-- onDidDismiss="onDidDismiss" -->
     <ion-modal 
         :is-open="UI.addEditHabitModalOpened" 

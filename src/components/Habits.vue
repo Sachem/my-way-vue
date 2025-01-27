@@ -2,7 +2,11 @@
 
     import { reactive, ref } from 'vue'
     import { IonContent, IonList, IonItem, IonButton, IonPopover, IonIcon } from '@ionic/vue';
-    import Habit from '../components/Habit.vue'
+    import LoadingState from './Habit.vue'
+    import EmptyState from './Habit.vue'
+    import Habit from './Habit.vue'
+    import SingleDayView from './Habit.vue'
+    import MultiDayView from './Habit.vue'
     import AddEditHabit from '../components/AddEditHabit.vue'
     import { useUIStore } from '@/stores/ui'
     import { nextTick } from 'vue';
@@ -157,6 +161,7 @@
         data.measurable = data.measurable ? 1 : 0 
         console.log(data)
 
+        UI.setAddEditHabitModalOpened(false);
 
         if (editedHabit.value == null) {
             // create new habit
@@ -194,7 +199,6 @@
                     console.log(habits.value)
 
                     editedHabit.value = null;
-                    UI.setAddEditHabitModalOpened(false);
                     
                     console.log("here");
                     console.log("UI.addEditHabitModalOpened: " + UI.addEditHabitModalOpened);
@@ -241,74 +245,26 @@
 
 <template>
     <ion-content color="light">
-        <ion-list v-if="loading">
-            <ion-item>
-                <p>Loading...</p>
-            </ion-item>
-        </ion-list>
-        <ion-list v-else-if="habits.length == 0">
-            <ion-item>
-                <p>No habits yet, add one now.</p>
-            </ion-item>
-        </ion-list>
-        <ion-list v-else-if="UI.appView == 'home'" className="ion-no-padding">
-            <Habit
-            v-for="habit in habits"
-            :habit="habit"
-            :key="habit.id"
-            @on-mark-completed="markCompleted" 
-            @on-change-progress="changeProgress" 
-            @on-delete="deleteHabit" 
-            @on-edit-habit="startEditHabit" 
-            @on-open-popover="openPopover"
-            />
-        </ion-list>
-        <ion-list v-else className="ion-no-padding">
-            <ion-item>
-                <div className='multiDayWrapper'>
-                    <div className='habitNamesColumn'>
-                        <table className='habitsTable habitNamesTable'>
-                            <thead>
-                            <tr><td>&nbsp;</td></tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="habit in habits" :key="habit.id">
-                                    <td key="name">
-                                        <div>
-                                            {{ habit.name }}
-                                            <template>
-                                                <br />
-                                                <span>Goal: {{ habit.goal }}</span>
-                                            </template>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div className='habitProgressColumn'>
-                        <table className='habitsTable habitProgressTable'>
-                            <thead>
-                            <tr>
-                                <td v-for="date in dates" :key="date.date">{{ date.dayOfWeek }}<br /><span>{{ date.dayInMonth }}</span></td> 
-                            </tr>
-                            </thead>
-                            <tbody>
-                                <Habit
-                                    v-for="habit in habits"
-                                    :habit="habit"
-                                    :key="habit.id"
-                                    @on-mark-completed="markCompleted" 
-                                    @on-change-progress="changeProgress" 
-                                    @on-delete="deleteHabit" 
-                                    @on-edit-habit="startEditHabit" 
-                                /> 
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </ion-item>
-        </ion-list>
+      <LoadingState v-if="loading" />
+      <EmptyState v-else-if="habits.length === 0" />
+      <SingleDayView
+        v-else-if="UI.appView === 'home'"
+        :habits="habits"
+        @on-mark-completed="markCompleted"
+        @on-change-progress="changeProgress"
+        @on-delete="deleteHabit"
+        @on-edit-habit="startEditHabit"
+        @on-open-popover="openPopover"
+      />
+      <MultiDayView
+        v-else
+        :habits="habits"
+        :dates="dates"
+        @on-mark-completed="markCompleted"
+        @on-change-progress="changeProgress"
+        @on-delete="deleteHabit"
+        @on-edit-habit="startEditHabit"
+      />
     </ion-content>
 
     <ion-button 
@@ -322,6 +278,12 @@
         class="addHabitSmall ion-hide-md-up" 
         @click="addHabit"
     >+</ion-button>
+
+    <AddEditHabit 
+        :key="editedHabit ? editedHabit.id : '0'"
+        :editedHabit="editedHabit"
+        @on-submit="addEditHabit" 
+    />
 
     <ion-popover 
         :isOpen="popoverOpened"
@@ -339,13 +301,7 @@
         </ion-item>
         </ion-content>
     </ion-popover>
-    
-    <AddEditHabit 
-        :key="editedHabit ? editedHabit.id : '0'"
-        :editedHabit="editedHabit"
-        @on-submit="addEditHabit" 
-    />
-</template>
+  </template>
 
 <style scoped>
 .addHabit{
