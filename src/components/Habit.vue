@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
     import { ref } from 'vue'
-    import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel, IonPopover } from '@ionic/vue';
+    import { IonAlert, IonButton, IonButtons, IonCheckbox, IonContent, IonIcon, IonItem, IonLabel } from '@ionic/vue';
     import { alertController } from '@ionic/vue';
     import { addCircleOutline, createOutline, trashOutline , checkmark, close, calendarOutline, ellipsisVerticalCircleOutline} from 'ionicons/icons';
     import { useUIStore } from '@/stores/ui'

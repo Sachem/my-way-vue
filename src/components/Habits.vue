@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
     import { reactive, ref } from 'vue'
-    import { IonContent, IonList, IonItem, IonButton } from '@ionic/vue';
+    import { IonContent, IonList, IonItem, IonButton, IonPopover, IonIcon } from '@ionic/vue';
     import Habit from '../components/Habit.vue'
     import AddEditHabit from '../components/AddEditHabit.vue'
     import { useUIStore } from '@/stores/ui'
     import { nextTick } from 'vue';
     import { inject } from 'vue'
+
 
     const axios: any = inject('axios') 
 
@@ -263,7 +264,7 @@
             />
         </ion-list>
         <ion-list v-else className="ion-no-padding">
-            <IonItem>
+            <ion-item>
                 <div className='multiDayWrapper'>
                     <div className='habitNamesColumn'>
                         <table className='habitsTable habitNamesTable'>
@@ -306,7 +307,7 @@
                         </table>
                     </div>
                 </div>
-            </IonItem>
+            </ion-item>
         </ion-list>
     </ion-content>
 
@@ -321,12 +322,6 @@
         class="addHabitSmall ion-hide-md-up" 
         @click="addHabit"
     >+</ion-button>
-
-    <AddEditHabit 
-        :key="editedHabit ? editedHabit.id : '0'"
-        :editedHabit="editedHabit"
-        @on-submit="addEditHabit" 
-    />
 
     <ion-popover 
         :isOpen="popoverOpened"
@@ -345,6 +340,11 @@
         </ion-content>
     </ion-popover>
     
+    <AddEditHabit 
+        :key="editedHabit ? editedHabit.id : '0'"
+        :editedHabit="editedHabit"
+        @on-submit="addEditHabit" 
+    />
 </template>
 
 <style scoped>
