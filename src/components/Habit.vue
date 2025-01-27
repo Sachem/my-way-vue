@@ -9,7 +9,7 @@
     const UI = useUIStore()
     
     const props = defineProps(['habit'])
-    const emit = defineEmits(['onMarkCompleted', 'onChangeProgress', 'onDelete', 'onEditHabit', 'onOpenPopover'])
+    const emit = defineEmits(['on-mark-completed', 'on-change-progress', 'on-delete', 'on-edit-habit', 'on-open-popover'])
     //const popoverOpened = ref(false);
 
     // console.log(props.habit)
@@ -17,7 +17,7 @@
     function onMarkCompleted(dateIndex){
         console.log('onMarkCompleted');
 
-        emit('onMarkCompleted', props.habit, 0)
+        emit('on-mark-completed', props.habit, 0)
     }
 
     function onCalendarOpen(){
@@ -28,14 +28,14 @@
     function onEditStart(){
         console.log('onEditStart');
 
-        emit('onEditHabit', props.habit);
+        emit('on-edit-habit', props.habit);
       //  setPopoverOpened(false);
     }
 
     function onChangeProgress(dateIndex, progress){
         console.log('onChangeProgress: ' + progress);
 
-        emit('onChangeProgress', props.habit, dateIndex, progress)
+        emit('on-change-progress', props.habit, dateIndex, progress)
     }
 
 
@@ -58,7 +58,7 @@
                 role: 'confirm',
                 handler: () => {
                     console.log('deleting habit...' + props.habit.id);
-                    emit('onDelete', props.habit.id);
+                    emit('on-delete', props.habit.id);
                 },
             },
         ]
@@ -144,7 +144,7 @@
         </ion-button>
         <ion-button 
             :id="'open-menu-habit-' + habit.id"
-            @click="$emit('onOpenPopover', habit)"
+            @click="$emit('on-open-popover', habit)"
             className='ion-hide-sm-up'
         >
             <ion-icon :icon="ellipsisVerticalCircleOutline"></ion-icon>
