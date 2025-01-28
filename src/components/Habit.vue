@@ -8,7 +8,7 @@
     const UI = useUIStore()
     
     const props = defineProps(['habit'])
-    const emit = defineEmits(['on-mark-completed', 'on-change-progress', 'on-delete', 'on-edit-habit', 'on-open-popover'])
+    const emit = defineEmits(['on-mark-completed', 'on-change-progress', 'on-delete', 'on-edit-habit', 'on-open-popover', 'on-calendar-open'])
 
     function onMarkCompleted(dateIndex: number){
         console.log('onMarkCompleted');
@@ -18,6 +18,7 @@
 
     function onCalendarOpen(){
         console.log('onCalendarOpen');
+        emit('on-calendar-open', props.habit);
     }
 
     function onEditStart(){

@@ -9,6 +9,7 @@
     import { inject } from 'vue'
     import { alertController } from '@ionic/vue';
     import { AlertInput } from '@ionic/core';
+import HabitCalendar from './HabitCalendar.vue';
 
     const axios: any = inject('axios') 
 
@@ -39,6 +40,8 @@
     const dates = ref<ProgressDate[]>([]); // TODO: move to UI store
     const popoverOpened = ref(false);
     const popoverHabit = ref<null | Habit>(null);
+    const habitCalendarOpened = ref(false);
+    const calendarHabit = ref<null | Habit>(null);
 
     axios.get('/sanctum/csrf-cookie')
             .then(response => {
@@ -266,20 +269,29 @@
     }
 
     function closePopover() {
+        console.log('closePopover');
         popoverHabit.value = null;
         popoverOpened.value = false;
     }
 
     
-    function calendarOpen(){
-        console.log('calendarOpen for habit: ' + popoverHabit.value?.name);
-       // setPopoverOpened(false);
+    function closeCalendar(){
+        console.log('closeCalendar');
+        calendarHabit.value = null;
+        habitCalendarOpened.value = false;
+    }
+    
+    function openCalendar(habit: Habit | null){
+        if (habit == null) return;
+        console.log('openCalendar for habit: ' + calendarHabit.value?.name);
+        closePopover();
+        calendarHabit.value = habit;
+        habitCalendarOpened.value = true;
     }
 
     function deleteHabit(habit: Habit)
     {
         console.log('deleteHabit: ' + habit.name);
-
         closePopover();
         editedHabit.value = habit;
         presentDeleteAlert();
@@ -351,6 +363,7 @@
             @on-delete="deleteHabit" 
             @on-edit-habit="startEditHabit" 
             @on-open-popover="openPopover"
+            @on-calendar-open="openCalendar"
             />
         </ion-list>
         <ion-list v-else className="ion-no-padding">
@@ -392,6 +405,7 @@
                                     @on-change-progress="changeProgress" 
                                     @on-delete="deleteHabit" 
                                     @on-edit-habit="startEditHabit" 
+                                    @on-calendar-open="openCalendar"
                                 /> 
                             </tbody>
                         </table>
@@ -418,7 +432,7 @@
         @ionPopoverDidDismiss="closePopover"
     >
         <ion-content class="ion-padding">
-        <ion-item @click="calendarOpen">
+        <ion-item @click="openCalendar(popoverHabit ?? null)">
             <ion-icon :icon="calendarOutline"></ion-icon>&nbsp;Calendar
         </ion-item>
         <ion-item @click="startEditHabit">
@@ -435,6 +449,13 @@
         :editedHabit="editedHabit"
         @on-submit="addEditHabit" 
     />
+
+    <HabitCalendar
+        :isOpen="habitCalendarOpened"
+        :habit="calendarHabit"
+        @on-calendar-close="closeCalendar"
+    />
+
 </template>
 
 <style scoped>
