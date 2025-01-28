@@ -119,7 +119,9 @@
         ];
 
         const alert = await alertController.create({
-            header: "What is your progress today?",
+            header: editedDateIndex.value == 0 
+                    ? "What is your progress today?" 
+                    : "What was your progress on " + dates.value[editedDateIndex.value].date + "?",
             inputs: updateProgressAlertInputs,
             buttons: updateProgressAlertButtons,
         });

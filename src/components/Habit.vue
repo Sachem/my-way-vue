@@ -84,7 +84,7 @@
             v-if="habit.measurable == 1"
             fill="clear"
             size='small'
-            :id="'update-progress-habit-'+habit.id+'-day-'+day.date"
+            @click="$emit('on-change-progress', props.habit, index)"
         >
             {{ day.progress }}
         </IonButton>
