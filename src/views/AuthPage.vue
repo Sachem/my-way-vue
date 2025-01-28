@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header>
         <ion-toolbar>
-          <ion-title><b className="themeBlue">My Way</b> - {{ appView == 'home' ? 'Today' : 'Recent days'}}</ion-title>
+          <ion-title><b className="themeBlue">My Way</b></ion-title>
           <ion-buttons slot="end">
             <ion-button @click="clicked">              
               <ion-icon className="themeBlue" icon={logOutOutline}></ion-icon>
@@ -27,16 +27,7 @@
         </IonGrid>
       </ion-content>
       <ion-footer>
-        <ion-toolbar>
-          <ion-segment value={appView}>
-            <ion-segment-button value="home" >
-              <ion-icon :icon="home"></ion-icon>
-            </ion-segment-button>
-            <ion-segment-button value="multiple-days" >
-              <ion-icon :icon="listOutline"></ion-icon>
-            </ion-segment-button>
-          </ion-segment>
-        </ion-toolbar>
+        <p class="developer">Developed by <a href="https://sachem.dev" target="_blank">sachem.dev</a></p>
       </ion-footer>
   </ion-page>
 </template>
@@ -69,5 +60,11 @@ axios.get('/api/auth/socialite/google')
 <style scoped>
 .themeBlue{
     color:rgb(56, 128, 255);
+}
+.developer{
+  text-align: center;
+  a{
+    text-decoration: none;
+  }
 }
 </style>
